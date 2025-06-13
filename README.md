@@ -29,8 +29,8 @@ Pastikan Anda sudah menginstal [Node.js](https://nodejs.org/) (disarankan versi 
 #### 2. Instalasi
 1.  **Unduh atau Clone Repositori Ini:**
     ```bash
-    git clone [URL_REPOSITORI_ANDA]
-    cd [NAMA_FOLDER_REPOSITORI]
+    git clone https://github.com/jamaluunn/Polyflow-Nganu.git
+    cd Polyflow-Nganu
     ```
 
 2.  **Instal semua dependensi:**
