@@ -223,70 +223,107 @@ async function createReceiptImage(receiptData) {
     return canvasObj.toBuffer('image/png');
 }
 
+// MODIFICATION: Rombak total fungsi ini agar sesuai contoh
 async function createWalletScreenshotImage(receiptData) {
-    const width = 450;
-    const height = 300;
+    const width = 400;
+    const height = 380;
     const canvasObj = createCanvas(width, height);
     const ctx = canvasObj.getContext('2d');
     const { amount, currency } = receiptData.detail;
+    
+    // Data acak untuk tampilan
     const fromAddress = ethers.Wallet.createRandom().address;
     const toAddress = ethers.Wallet.createRandom().address;
     const now = new Date();
     const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Asia/Jakarta' });
-    const dateString = now.toLocaleDateString('en-CA'); // YYYY-MM-DD format
-
-    ctx.fillStyle = '#141414'; // Dark background
-    ctx.fillRect(0, 0, width, height);
+    const dateString = now.toLocaleDateString('en-CA').replace(/-/g, '/');
+    const networkFee = (Math.random() * 0.00009 + 0.00001).toFixed(8);
+    const networkFeeUSD = (networkFee * 3500).toFixed(4); // Perkiraan harga ETH
     
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 20px Arial';
+    // Warna acak untuk ikon koin
+    const colors = ['#F6851B', '#627EEA', '#41B883', '#F0B90B', '#8A2BE2'];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+    // Latar belakang gelap
+    ctx.fillStyle = '#18191A';
+    ctx.fillRect(0, 0, width, height);
+
+    // Header
+    ctx.fillStyle = '#E4E6EB';
+    ctx.font = '16px "Segoe UI", Arial, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('✔ Completed', width / 2, 40);
 
-    ctx.font = 'bold 36px Arial';
-    ctx.fillStyle = '#28a745'; // Green color for amount
-    ctx.fillText(`+ ${amount.toFixed(0)} ${currency}`, width / 2, 90);
-
-    ctx.font = '14px Arial';
-    ctx.fillStyle = '#AAAAAA';
-    ctx.textAlign = 'left';
-    ctx.fillText('From', 30, 140);
-    ctx.fillText('Interacted with', 30, 190);
-    
-    ctx.font = '16px "Courier New"';
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillText(shorten(fromAddress, 10, 10), 30, 160);
-    ctx.fillText(shorten(toAddress, 10, 10), 30, 210);
-
-    ctx.strokeStyle = '#444444';
+    // Ikon koin
     ctx.beginPath();
-    ctx.moveTo(30, 240);
-    ctx.lineTo(width - 30, 240);
+    ctx.arc(140, 90, 20, 0, 2 * Math.PI, false);
+    ctx.fillStyle = randomColor;
+    ctx.fill();
+
+    // Jumlah
+    ctx.fillStyle = '#E4E6EB';
+    ctx.font = 'bold 32px "Segoe UI", Arial, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(`+ ${amount.toFixed(0)} ${currency}`, 175, 100);
+
+    // Garis pemisah
+    ctx.strokeStyle = '#3A3B3C';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(30, 130);
+    ctx.lineTo(width - 30, 130);
     ctx.stroke();
 
-    ctx.font = '14px Arial';
-    ctx.fillStyle = '#AAAAAA';
-    ctx.fillText('Time', 30, 265);
-    ctx.fillText('Type', width / 2, 265);
-    ctx.textAlign = 'right';
-    ctx.fillText('Network', width - 30, 265);
+    // Detail From & To
+    ctx.font = '14px "Segoe UI", Arial, sans-serif';
+    ctx.fillStyle = '#B0B3B8';
+    ctx.fillText('From', 30, 160);
+    ctx.fillText('Interacted with', 30, 210);
+
+    ctx.font = '14px "Courier New", monospace';
+    ctx.fillStyle = '#E4E6EB';
+    ctx.fillText(fromAddress, 30, 180);
+    ctx.fillText(toAddress, 30, 230);
     
-    ctx.fillStyle = '#FFFFFF';
-    ctx.textAlign = 'left';
-    ctx.fillText(`${dateString}, ${timeString}`, 30, 285);
-    ctx.textAlign = 'center';
-    ctx.fillText('Contract Interaction', width / 2, 285);
+    // Detail Bawah
+    ctx.font = '14px "Segoe UI", Arial, sans-serif';
+    ctx.fillStyle = '#B0B3B8';
+    ctx.fillText('Time', 30, 260);
     ctx.textAlign = 'right';
-    ctx.fillText('Base', width - 30, 285);
+    ctx.fillText('Type', width - 30, 260);
+
+    ctx.fillStyle = '#E4E6EB';
+    ctx.textAlign = 'left';
+    ctx.fillText(`${dateString}, ${timeString}`, 30, 280);
+    ctx.textAlign = 'right';
+    ctx.fillText('Contract Interaction', width - 30, 280);
+    
+    // Network Fee
+    ctx.fillStyle = '#B0B3B8';
+    ctx.textAlign = 'left';
+    ctx.fillText('Network fee', 30, 310);
+    ctx.textAlign = 'right';
+    ctx.fillText('Network', width - 30, 310);
+
+    ctx.fillStyle = '#E4E6EB';
+    ctx.textAlign = 'left';
+    ctx.fillText(`${networkFee} BASE_ETH`, 30, 330);
+    ctx.fillStyle = '#B0B3B8';
+    ctx.fillText(`($${networkFeeUSD})`, 30, 350);
+    ctx.fillStyle = '#E4E6EB';
+    ctx.textAlign = 'right';
+    ctx.fillText('Base', width - 30, 330);
 
     return canvasObj.toBuffer('image/png');
 }
 
+
 async function createReceiptData() {
     const amount = (Math.random() * (50 - 1) + 1);
     const receiptNumber = `0x${[...Array(64)].map(() => Math.floor(Math.random() * 16).toString(16)).join('')}`;
-    const merchantNames = ["JP Merch", "Galxe", "QuestN", "Layer3", "Zealy", "Guild.xyz", "Snapshot", "TokoCrypto", "Indodax"];
-    const currencies = ["KRNL", "BUBU", "PXL", "USDT", "ETH", "MATIC", "BNB"];
+    // MODIFICATION: Nama merchant yang lebih umum
+    const merchantNames = ["Pixel Palace", "Token Store", "DeFi Goods", "Web3 Wares", "CryptoMerch", "NFT Emporium", "Chain Goods"];
+    const currencies = ["KRNL", "BUBU", "PXL", "USDT", "ETH", "MATIC", "BNB", "OP", "ARB"];
 
     const receiptData = {
         is_roam: false,
@@ -428,7 +465,7 @@ async function processAccount(privateKey, proxy, performUpload, uploadCount) {
           const receiptData = await createReceiptData();
 
           uploadSpinner.text = 'Step 2: Generating random image type...';
-          const imageType = Math.random() < 0.5 ? 'receipt' : 'wallet'; // 50% chance for each type
+          const imageType = Math.random() < 0.5 ? 'receipt' : 'wallet';
           const imageBuffer = imageType === 'receipt' 
               ? await createReceiptImage(receiptData) 
               : await createWalletScreenshotImage(receiptData);
